@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>JobEka Admin Dashboard</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', sans-serif; background: #0F172A; color: #E2E8F0; min-height: 100vh; }
+
+  /* Login */
+  .login-wrap { display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+  .login-box { background: #1E293B; border-radius: 20px; padding: 40px; width: 360px; border: 1px solid #334155; }
+  .login-box h1 { font-size: 24px; font-weight: 800; color: #60A5FA; margin-bottom: 6px; }
+  .login-box p  { font-size: 13px; color: #94A3B8; margin-bottom: 28px; }
+  .login-box input { width: 100%; background: #0F172A; border: 1.5px solid #334155; border-radius: 10px; padding: 12px 14px; color: #E2E8F0; font-size: 14px; margin-bottom: 14px; outline: none; }
+  .login-box input:focus { border-color: #3B82F6; }
+  .login-box button { width: 100%; background: #2563EB; color: #fff; border: none; border-radius: 10px; padding: 13px; font-size: 15px; font-weight: 700; cursor: pointer; }
+  .login-box button:hover { background: #1D4ED8; }
+  .error-msg { color: #F87171; font-size: 13px; margin-top: 10px; text-align: center; }
+
+  /* Layout */
+  .hidden { display: none !important; }
+  .layout { display: flex; min-height: 100vh; }
+
+  /* Sidebar */
+  .sidebar { width: 230px; background: #1E293B; border-right: 1px solid #334155; display: flex; flex-direction: column; position: fixed; top: 0; left: 0; height: 100vh; }
+  .sidebar-logo { padding: 24px 20px 16px; border-bottom: 1px solid #334155; }
+  .sidebar-logo h2 { font-size: 20px; font-weight: 800; color: #60A5FA; }
+  .sidebar-logo p  { font-size: 11px; color: #64748B; margin-top: 2px; }
+  .nav-item { display: flex; align-items: center; gap: 10px; padding: 12px 20px; cursor: pointer; color: #94A3B8; font-size: 14px; font-weight: 500; transition: all 0.2s; border-left: 3px solid transparent; }
+  .nav-item:hover { background: #0F172A; color: #E2E8F0; }
+  .nav-item.active { background: #0F172A; color: #60A5FA; border-left-color: #3B82F6; }
+  .nav-icon { font-size: 18px; width: 22px; text-align: center; }
+  .sidebar-footer { margin-top: auto; padding: 16px 20px; border-top: 1px solid #334155; }
+  .logout-btn { width: 100%; background: #1F2937; border: 1px solid #374151; color: #F87171; border-radius: 8px; padding: 9px; font-size: 13px; cursor: pointer; }
+  .logout-btn:hover { background: #2D1B1B; }
+
+  /* Main */
+  .main { margin-left: 230px; padding: 28px; flex: 1; }
+  .page-title { font-size: 22px; font-weight: 800; color: #F1F5F9; margin-bottom: 6px; }
+  .page-sub   { font-size: 13px; color: #64748B; margin-bottom: 24px; }
+
+  /* Stats */
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 28px; }
+  .stat-card  { background: #1E293B; border-radius: 14px; padding: 20px; border: 1px solid #334155; }
+  .stat-value { font-size: 30px; font-weight: 800; }
+  .stat-label { font-size: 12px; color: #94A3B8; margin-top: 4px; }
+  .stat-icon  { font-size: 24px; margin-bottom: 10px; }
+
+  /* Table */
+  .table-card { background: #1E293B; border-radius: 14px; border: 1px solid #334155; overflow: hidden; }
+  .table-head { display: flex; align-items: center; justify-content: space-between; padding: 18px 20px; border-bottom: 1px solid #334155; }
+  .table-head h3 { font-size: 15px; font-weight: 700; }
+  .search-input { background: #0F172A; border: 1px solid #334155; border-radius: 8px; padding: 7px 12px; color: #E2E8F0; font-size: 13px; width: 220px; }
+  .search-input:focus { outline: none; border-color: #3B82F6; }
+  table { width: 100%; border-collapse: collapse; }
+  thead tr { background: #0F172A; }
+  th { padding: 11px 16px; text-align: left; font-size: 11px; font-weight: 700; color: #64748B; letter-spacing: 0.5px; text-transform: uppercase; }
+  td { padding: 12px 16px; font-size: 13px; border-top: 1px solid #1F2937; vertical-align: middle; }
+  tr:hover td { background: #162032; }
+
+  /* Badges */
+  .badge { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+  .badge-green  { background: #05966920; color: #34D399; }
+  .badge-blue   { background: #2563EB20; color: #60A5FA; }
+  .badge-orange { background: #D9770620; color: #FBBF24; }
+  .badge-red    { background: #EF444420; color: #F87171; }
+  .badge-purple { background: #7C3AED20; color: #A78BFA; }
+
+  /* Action buttons */
+  .del-btn { background: #EF444420; color: #F87171; border: 1px solid #EF444444; border-radius: 6px; padding: 4px 10px; font-size: 12px; cursor: pointer; }
+  .del-btn:hover { background: #EF444440; }
+
+  /* Loading */
+  .loading { text-align: center; padding: 40px; color: #64748B; font-size: 14px; }
+  .spinner { display: inline-block; width: 24px; height: 24px; border: 3px solid #334155; border-top-color: #3B82F6; border-radius: 50%; animation: spin 0.8s linear infinite; margin-right: 10px; vertical-align: middle; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .ip-info { background: #1E293B; border: 1px solid #334155; border-radius: 10px; padding: 12px 16px; margin-bottom: 20px; font-size: 13px; color: #94A3B8; }
+  .ip-info span { color: #60A5FA; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-wrap" id="loginPage">
+  <div class="login-box">
+    <h1>🛡️ JobEka Admin</h1>
+    <p>Sign in to access the admin dashboard</p>
+    <input type="text" id="serverIP" placeholder="Server IP (e.g. 10.198.62.222)" />
+    <input type="password" id="adminKey" placeholder="Admin Key" />
+    <button onclick="doLogin()">Sign In →</button>
+    <div class="error-msg hidden" id="loginError"></div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="layout hidden" id="dashboard">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <h2>JobEka</h2>
+      <p>Admin Dashboard</p>
+    </div>
+    <nav>
+      <div class="nav-item active" onclick="showPage('overview')" id="nav-overview">
+        <span class="nav-icon">📊</span> Overview
+      </div>
+      <div class="nav-item" onclick="showPage('users')" id="nav-users">
+        <span class="nav-icon">👥</span> All Users
+      </div>
+      <div class="nav-item" onclick="showPage('jobs')" id="nav-jobs">
+        <span class="nav-icon">💼</span> All Jobs
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="logout-btn" onclick="doLogout()">🚪 Sign Out</button>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main">
+    <!-- Overview -->
+    <div id="page-overview">
+      <div class="page-title">📊 Overview</div>
+      <div class="page-sub" id="lastRefresh">Loading...</div>
+
+      <div class="ip-info">
+        🌐 Connected to: <span id="connectedIP">—</span>
+        &nbsp;&nbsp;|&nbsp;&nbsp;
+        🔑 Admin Key: <span>jobeka_admin_2025</span>
+      </div>
+
+      <div class="stats-grid" id="statsGrid">
+        <div class="loading"><span class="spinner"></span>Loading stats...</div>
+      </div>
+    </div>
+
+    <!-- Users -->
+    <div id="page-users" class="hidden">
+      <div class="page-title">👥 All Users</div>
+      <div class="page-sub">All registered users across all roles</div>
+      <div class="table-card">
+        <div class="table-head">
+          <h3>Users</h3>
+          <input class="search-input" type="text" placeholder="🔍 Search by name, email..." oninput="filterTable('usersTable', this.value)" />
+        </div>
+        <div id="usersTable"><div class="loading"><span class="spinner"></span>Loading users...</div></div>
+      </div>
+    </div>
+
+    <!-- Jobs -->
+    <div id="page-jobs" class="hidden">
+      <div class="page-title">💼 All Jobs</div>
+      <div class="page-sub">All job postings from all employers</div>
+      <div class="table-card">
+        <div class="table-head">
+          <h3>Jobs</h3>
+          <input class="search-input" type="text" placeholder="🔍 Search jobs..." oninput="filterTable('jobsTable', this.value)" />
+        </div>
+        <div id="jobsTable"><div class="loading"><span class="spinner"></span>Loading jobs...</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let BASE_URL = "";
+let ADMIN_KEY = "";
+let allUsers = [];
+let allJobs  = [];
+
+// ── Login
+async function doLogin() {
+  const ip  = document.getElementById("serverIP").value.trim();
+  const key = document.getElementById("adminKey").value.trim();
+  if (!ip || !key) { showError("Please enter server IP and admin key"); return; }
+
+  BASE_URL  = `http://${ip}:8000`;
+  ADMIN_KEY = key;
+
+  try {
+    const res = await fetch(`${BASE_URL}/api/admin/stats`, {
+      headers: { "x-admin-key": ADMIN_KEY }
+    });
+    if (!res.ok) { showError("Wrong admin key or server not running"); return; }
+
+    document.getElementById("loginPage").classList.add("hidden");
+    document.getElementById("dashboard").classList.remove("hidden");
+    document.getElementById("connectedIP").textContent = ip + ":8000";
+    loadAll();
+  } catch (e) {
+    showError("Cannot connect to server. Check IP and make sure FastAPI is running.");
+  }
+}
+
+function showError(msg) {
+  const el = document.getElementById("loginError");
+  el.textContent = msg;
+  el.classList.remove("hidden");
+}
+
+function doLogout() {
+  BASE_URL = ""; ADMIN_KEY = "";
+  document.getElementById("dashboard").classList.add("hidden");
+  document.getElementById("loginPage").classList.remove("hidden");
+}
+
+// ── Load all data
+async function loadAll() {
+  await loadStats();
+  await loadUsers();
+  await loadJobs();
+  document.getElementById("lastRefresh").textContent =
+    "Last refreshed: " + new Date().toLocaleTimeString();
+}
+
+// ── Stats
+async function loadStats() {
+  const res  = await fetch(`${BASE_URL}/api/admin/stats`, { headers: { "x-admin-key": ADMIN_KEY } });
+  const data = await res.json();
+  const grid = document.getElementById("statsGrid");
+  const cards = [
+    { icon: "👥", value: data.total_users,       label: "Total Users",       color: "#60A5FA" },
+    { icon: "🔍", value: data.job_seekers,        label: "Job Seekers",       color: "#34D399" },
+    { icon: "🏢", value: data.employers,          label: "Employers",         color: "#FBBF24" },
+    { icon: "🛠️", value: data.service_providers,  label: "Service Providers", color: "#A78BFA" },
+    { icon: "💼", value: data.total_jobs,         label: "Total Jobs",        color: "#60A5FA" },
+    { icon: "🟢", value: data.active_jobs,        label: "Active Jobs",       color: "#34D399" },
+    { icon: "🟡", value: data.applied_jobs,       label: "In Progress",       color: "#FBBF24" },
+    { icon: "🔴", value: data.closed_jobs,        label: "Completed",         color: "#F87171" },
+  ];
+  grid.innerHTML = cards.map(c => `
+    <div class="stat-card">
+      <div class="stat-icon">${c.icon}</div>
+      <div class="stat-value" style="color:${c.color}">${c.value}</div>
+      <div class="stat-label">${c.label}</div>
+    </div>
+  `).join("");
+}
+
+// ── Users table
+async function loadUsers() {
+  const res = await fetch(`${BASE_URL}/api/admin/users`, { headers: { "x-admin-key": ADMIN_KEY } });
+  allUsers  = await res.json();
+  renderUsers(allUsers);
+}
+
+function renderUsers(users) {
+  const container = document.getElementById("usersTable");
+  if (!users.length) { container.innerHTML = `<div class="loading">No users found</div>`; return; }
+  const roleBadge = (role) => {
+    if (role === "employer")         return `<span class="badge badge-orange">🏢 Employer</span>`;
+    if (role === "service_provider") return `<span class="badge badge-purple">🛠️ Service Provider</span>`;
+    return `<span class="badge badge-green">🔍 Job Seeker</span>`;
+  };
+  container.innerHTML = `
+    <table>
+      <thead><tr>
+        <th>#</th><th>Name</th><th>Email</th><th>Phone</th><th>Role</th><th>Company</th><th>Joined</th><th>Action</th>
+      </tr></thead>
+      <tbody>
+        ${users.map((u, i) => `
+          <tr>
+            <td style="color:#64748B">${i + 1}</td>
+            <td style="font-weight:700">${u.name || "—"}</td>
+            <td style="color:#94A3B8">${u.email || "—"}</td>
+            <td style="color:#60A5FA">${u.phone || "—"}</td>
+            <td>${roleBadge(u.role)}</td>
+            <td style="color:#94A3B8">${u.company || "—"}</td>
+            <td style="color:#64748B;font-size:12px">${u.createdAt ? new Date(u.createdAt).toLocaleDateString() : "—"}</td>
+            <td><button class="del-btn" onclick="deleteUser('${u._id}', '${u.name}')">🗑 Delete</button></td>
+          </tr>
+        `).join("")}
+      </tbody>
+    </table>`;
+}
+
+// ── Jobs table
+async function loadJobs() {
+  const res = await fetch(`${BASE_URL}/api/admin/jobs`, { headers: { "x-admin-key": ADMIN_KEY } });
+  allJobs   = await res.json();
+  renderJobs(allJobs);
+}
+
+function renderJobs(jobs) {
+  const container = document.getElementById("jobsTable");
+  if (!jobs.length) { container.innerHTML = `<div class="loading">No jobs found</div>`; return; }
+  const statusBadge = (s) => {
+    if (s === "active")  return `<span class="badge badge-green">🟢 Active</span>`;
+    if (s === "applied") return `<span class="badge badge-orange">🟡 In Progress</span>`;
+    return `<span class="badge badge-red">🔴 Closed</span>`;
+  };
+  container.innerHTML = `
+    <table>
+      <thead><tr>
+        <th>#</th><th>Title</th><th>Type</th><th>Location</th><th>Salary</th><th>Employer</th><th>Status</th><th>Posted</th><th>Action</th>
+      </tr></thead>
+      <tbody>
+        ${jobs.map((j, i) => `
+          <tr>
+            <td style="color:#64748B">${i + 1}</td>
+            <td style="font-weight:700">${j.title || "—"}</td>
+            <td><span class="badge badge-blue">${j.type || "—"}</span></td>
+            <td style="color:#94A3B8">${j.location || "—"}</td>
+            <td style="color:#34D399;font-weight:700">${j.salary || "—"}</td>
+            <td style="color:#FBBF24">${j.employer_name || "—"}</td>
+            <td>${statusBadge(j.status)}</td>
+            <td style="color:#64748B;font-size:12px">${j.createdAt ? new Date(j.createdAt).toLocaleDateString() : "—"}</td>
+            <td><button class="del-btn" onclick="deleteJob('${j._id}', '${j.title}')">🗑 Delete</button></td>
+          </tr>
+        `).join("")}
+      </tbody>
+    </table>`;
+}
+
+// ── Delete user
+async function deleteUser(id, name) {
+  if (!confirm(`Delete user "${name}"?`)) return;
+  await fetch(`${BASE_URL}/api/admin/users/${id}`, { method: "DELETE", headers: { "x-admin-key": ADMIN_KEY } });
+  allUsers = allUsers.filter(u => u._id !== id);
+  renderUsers(allUsers);
+  loadStats();
+}
+
+// ── Delete job
+async function deleteJob(id, title) {
+  if (!confirm(`Delete job "${title}"?`)) return;
+  await fetch(`${BASE_URL}/api/admin/jobs/${id}`, { method: "DELETE", headers: { "x-admin-key": ADMIN_KEY } });
+  allJobs = allJobs.filter(j => j._id !== id);
+  renderJobs(allJobs);
+  loadStats();
+}
+
+// ── Filter table
+function filterTable(tableId, query) {
+  const q = query.toLowerCase();
+  if (tableId === "usersTable") {
+    renderUsers(allUsers.filter(u =>
+      (u.name || "").toLowerCase().includes(q) ||
+      (u.email || "").toLowerCase().includes(q) ||
+      (u.role || "").toLowerCase().includes(q) ||
+      (u.phone || "").toLowerCase().includes(q)
+    ));
+  } else {
+    renderJobs(allJobs.filter(j =>
+      (j.title || "").toLowerCase().includes(q) ||
+      (j.location || "").toLowerCase().includes(q) ||
+      (j.employer_name || "").toLowerCase().includes(q) ||
+      (j.status || "").toLowerCase().includes(q)
+    ));
+  }
+}
+
+// ── Page nav
+function showPage(page) {
+  ["overview", "users", "jobs"].forEach(p => {
+    document.getElementById(`page-${p}`).classList.toggle("hidden", p !== page);
+    document.getElementById(`nav-${p}`).classList.toggle("active", p === page);
+  });
+}
+
+// Enter key login
+document.addEventListener("keydown", e => {
+  if (e.key === "Enter") doLogin();
+});
+</script>
+</body>
+</html>

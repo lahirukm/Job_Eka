@@ -1,0 +1,25 @@
+# Environment / Secrets
+.env
+**/.env
+.env.*
+
+# Node
+node_modules/
+**/node_modules/
+
+# Python
+__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+
+# Expo
+.expo/
+.expo-shared/
+
+# VS Code
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
