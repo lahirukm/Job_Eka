@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import {
   View, Text, TouchableOpacity, StyleSheet,
   Dimensions, Animated, ScrollView,
-  StatusBar, TextInput, FlatList,
+  StatusBar, TextInput,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -10,26 +10,18 @@ import { useTheme } from "../context/ThemeContext";
 
 const { width } = Dimensions.get("window");
 const CARD_WIDTH   = (width - 48) / 2;
-const BANNER_WIDTH = width - 32;
-
-const STATS = [
-  { label: "Jobs Today",  value: "248", icon: "briefcase-outline",        colorKey: "primary" },
-  { label: "Near You",    value: "34",  icon: "location-outline",         colorKey: "green"   },
-  { label: "Companies",   value: "89",  icon: "business-outline",         colorKey: "orange"  },
-  { label: "Hired Today", value: "12",  icon: "checkmark-circle-outline", colorKey: "purple"  },
-];
 
 const CATEGORIES = [
   {
     id: "part_time", title: "Part Time\nJobs",  subtitle: "Daily & flexible tasks",
     icon: "time-outline",          colorKey: "primary",
-    badge: "248 available",        examples: "Garden • Cleaning • Delivery",
+    badge: "Flexible",             examples: "Garden • Cleaning • Delivery",
     route: "part-time-map",
   },
   {
     id: "full_time", title: "Full Time\nJobs",  subtitle: "Career opportunities",
     icon: "business-outline",      colorKey: "green",
-    badge: "89 companies",         examples: "IT • Finance • Marketing",
+    badge: "Careers",              examples: "IT • Finance • Marketing",
     route: null,
   },
   {
@@ -45,33 +37,6 @@ const CATEGORIES = [
     route: null,
   },
 ];
-
-const BANNERS = [
-  { id: "b1", title: "ABC Solutions",    subtitle: "Sri Lanka's #1 IT Company",  tag: "Featured Company", tagColorKey: "primary", icon: "business",              detail: "50+ open positions"  },
-  { id: "b2", title: "Senior Developer", subtitle: "Tech Park LK · Colombo 3",   tag: "🔥 Hot Job",       tagColorKey: "orange",  icon: "laptop-outline",        detail: "LKR 150,000 / month" },
-  { id: "b3", title: "QuickShip LK",     subtitle: "Leading Delivery Platform",   tag: "Now Hiring",       tagColorKey: "green",   icon: "bicycle-outline",       detail: "Riders & Supervisors"},
-  { id: "b4", title: "UI/UX Designer",   subtitle: "Creative Studio · Remote",    tag: "🔥 Hot Job",       tagColorKey: "purple",  icon: "color-palette-outline", detail: "LKR 95,000 / month"  },
-  { id: "b5", title: "FinServe Lanka",   subtitle: "Top Finance & Banking",       tag: "Featured Company", tagColorKey: "primary", icon: "card-outline",          detail: "20+ open positions"  },
-  { id: "b6", title: "Garden Cleaner",   subtitle: "Kamal Silva · Nugegoda",      tag: "⚡ Urgent",        tagColorKey: "orange",  icon: "leaf-outline",          detail: "LKR 2,500 / day"     },
-];
-
-const RECENT_JOBS = [
-  { id: "1", title: "Garden Cleaning",   company: "Kamal Silva",   pay: "LKR 2,500",   time: "2h ago", type: "Part Time", urgent: true  },
-  { id: "2", title: "Software Engineer", company: "ABC Solutions", pay: "LKR 120,000", time: "3h ago", type: "Full Time", urgent: false },
-  { id: "3", title: "Delivery Rider",    company: "QuickShip LK", pay: "LKR 45,000",  time: "5h ago", type: "Part Time", urgent: true  },
-  { id: "4", title: "UI/UX Designer",    company: "Tech Park LK", pay: "LKR 95,000",  time: "6h ago", type: "Full Time", urgent: false },
-];
-
-// ── StatCard
-const StatCard = ({ item, T }) => (
-  <View style={[s.statCard, { backgroundColor: T.surface, borderColor: T.border }]}>
-    <View style={[s.statIconBox, { backgroundColor: T[item.colorKey + "Bg"] }]}>
-      <Ionicons name={item.icon} size={18} color={T[item.colorKey]} />
-    </View>
-    <Text style={[s.statValue, { color: T.text }]}>{item.value}</Text>
-    <Text style={[s.statLabel, { color: T.textSub }]}>{item.label}</Text>
-  </View>
-);
 
 // ── CategoryCard
 const CategoryCard = ({ item, onPress, animValue, T }) => (
@@ -111,63 +76,6 @@ const CategoryCard = ({ item, onPress, animValue, T }) => (
   </Animated.View>
 );
 
-// ── BannerSlide
-const BannerSlide = ({ item, T }) => {
-  const color = T[item.tagColorKey];
-  const bg    = T[item.tagColorKey + "Bg"];
-  return (
-    <View style={[s.bannerSlide, { backgroundColor: bg, borderColor: color + "44" }]}>
-      <View style={[s.bannerIconBox, { backgroundColor: color + "22" }]}>
-        <Ionicons name={item.icon} size={28} color={color} />
-      </View>
-      <View style={s.bannerContent}>
-        <View style={[s.bannerTag, { backgroundColor: color + "18" }]}>
-          <Text style={[s.bannerTagText, { color }]}>{item.tag}</Text>
-        </View>
-        <Text style={[s.bannerTitle, { color: T.text }]} numberOfLines={1}>{item.title}</Text>
-        <Text style={[s.bannerSubtitle, { color: T.textSub }]} numberOfLines={1}>{item.subtitle}</Text>
-        <Text style={[s.bannerDetail, { color }]}>{item.detail}</Text>
-      </View>
-      <TouchableOpacity style={[s.bannerArrow, { backgroundColor: color }]}>
-        <Ionicons name="arrow-forward" size={14} color="#FFFFFF" />
-      </TouchableOpacity>
-    </View>
-  );
-};
-
-// ── RecentJobRow
-const RecentJobRow = ({ item, onPress, T }) => (
-  <TouchableOpacity
-    style={[s.recentRow, { backgroundColor: T.surface, borderColor: T.border }]}
-    onPress={onPress} activeOpacity={0.8}
-  >
-    <View style={[s.recentIconBox, { backgroundColor: item.type === "Part Time" ? T.primaryBg : T.greenBg }]}>
-      <Ionicons
-        name={item.type === "Part Time" ? "time-outline" : "business-outline"}
-        size={18}
-        color={item.type === "Part Time" ? T.primary : T.green}
-      />
-    </View>
-    <View style={s.recentInfo}>
-      <View style={s.recentTitleRow}>
-        <Text style={[s.recentTitle, { color: T.text }]} numberOfLines={1}>{item.title}</Text>
-        {item.urgent && (
-          <View style={[s.urgentTag, { backgroundColor: T.orangeBg }]}>
-            <Text style={[s.urgentTagText, { color: T.orange }]}>Urgent</Text>
-          </View>
-        )}
-      </View>
-      <Text style={[s.recentCompany, { color: T.textSub }]}>{item.company}  ·  {item.time}</Text>
-    </View>
-    <View style={s.recentRight}>
-      <Text style={[s.recentPay, { color: T.green }]}>{item.pay}</Text>
-      <Text style={[s.recentType, { color: item.type === "Part Time" ? T.primary : T.green }]}>
-        {item.type}
-      </Text>
-    </View>
-  </TouchableOpacity>
-);
-
 // ─────────────────────────────────────────────────────────────
 // Main Screen
 // ─────────────────────────────────────────────────────────────
@@ -177,12 +85,9 @@ export default function HomeScreen() {
 
   const [search,        setSearch]        = useState("");
   const [searchFocused, setSearchFocused] = useState(false);
-  const [activeBanner,  setActiveBanner]  = useState(0);
 
   const headerFade   = useRef(new Animated.Value(0)).current;
   const cardAnims    = useRef(CATEGORIES.map(() => new Animated.Value(0))).current;
-  const bannerRef    = useRef(null);
-  const autoSlideRef = useRef(null);
 
   useEffect(() => {
     Animated.timing(headerFade, { toValue: 1, duration: 600, useNativeDriver: true }).start();
@@ -191,16 +96,6 @@ export default function HomeScreen() {
         Animated.spring(anim, { toValue: 1, tension: 60, friction: 10, useNativeDriver: true })
       )
     ).start();
-
-    autoSlideRef.current = setInterval(() => {
-      setActiveBanner((prev) => {
-        const next = (prev + 1) % BANNERS.length;
-        bannerRef.current?.scrollToIndex({ index: next, animated: true });
-        return next;
-      });
-    }, 3000);
-
-    return () => clearInterval(autoSlideRef.current);
   }, []);
 
   const handleCategoryPress = (cat) => {
@@ -277,11 +172,6 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* ── STATS ── */}
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.statsRow}>
-          {STATS.map((stat, i) => <StatCard key={i} item={stat} T={T} />)}
-        </ScrollView>
-
         {/* ── CATEGORY CARDS ── */}
         <View style={s.sectionHeader}>
           <Text style={[s.sectionTitle, { color: T.text }]}>What are you looking for?</Text>
@@ -295,70 +185,6 @@ export default function HomeScreen() {
               onPress={() => handleCategoryPress(cat)}
             />
           ))}
-        </View>
-
-        {/* ── BANNER ── */}
-        <View style={s.sectionHeader}>
-          <Text style={[s.sectionTitle, { color: T.text }]}>Featured & Hot Jobs</Text>
-          <Text style={[s.sectionSub, { color: T.textSub }]}>Companies & opportunities near you</Text>
-        </View>
-        <FlatList
-          ref={bannerRef}
-          data={BANNERS}
-          keyExtractor={(item) => item.id}
-          horizontal pagingEnabled
-          showsHorizontalScrollIndicator={false}
-          snapToInterval={BANNER_WIDTH + 12}
-          decelerationRate="fast"
-          contentContainerStyle={s.bannerList}
-          onMomentumScrollEnd={(e) => {
-            const index = Math.round(e.nativeEvent.contentOffset.x / (BANNER_WIDTH + 12));
-            setActiveBanner(index);
-          }}
-          renderItem={({ item }) => <BannerSlide item={item} T={T} />}
-          getItemLayout={(_, index) => ({
-            length: BANNER_WIDTH + 12, offset: (BANNER_WIDTH + 12) * index, index,
-          })}
-        />
-
-        {/* Dots */}
-        <View style={s.dotsRow}>
-          {BANNERS.map((_, i) => (
-            <TouchableOpacity key={i} onPress={() => {
-              bannerRef.current?.scrollToIndex({ index: i, animated: true });
-              setActiveBanner(i);
-            }}>
-              <View style={[s.dot, { backgroundColor: T.border },
-                activeBanner === i && [s.dotActive, { backgroundColor: T.primary }]
-              ]} />
-            </TouchableOpacity>
-          ))}
-        </View>
-
-        {/* ── RECENT JOBS ── */}
-        <View style={[s.sectionHeader, { marginTop: 8 }]}>
-          <Text style={[s.sectionTitle, { color: T.text }]}>Recent Jobs</Text>
-          <TouchableOpacity>
-            <Text style={[s.seeAll, { color: T.primary }]}>See All →</Text>
-          </TouchableOpacity>
-        </View>
-        <View style={s.recentList}>
-          {RECENT_JOBS.map((job) => (
-            <RecentJobRow key={job.id} item={job} T={T}
-              onPress={() => alert(`${job.title}\n${job.company}\nPay: ${job.pay}`)}
-            />
-          ))}
-        </View>
-
-        {/* ── AI BANNER ── */}
-        <View style={[s.aiBanner, { backgroundColor: T.primaryBg, borderColor: T.primary + "44" }]}>
-          <View style={s.aiBannerLeft}>
-            <Text style={[s.aiBannerTitle, { color: T.text }]}>🤖 AI Match Found!</Text>
-            <Text style={[s.aiBannerSub, { color: T.textSub }]}>3 jobs match your profile perfectly</Text>
-          </View>
-          <TouchableOpacity style={[s.aiBannerBtn, { backgroundColor: T.primary }]}>
-            <Text style={s.aiBannerBtnText}>View</Text>
-          </TouchableOpacity>
         </View>
 
         {/* ── FOOTER ── */}
@@ -391,15 +217,9 @@ const s = StyleSheet.create({
   searchBox: { flex: 1, flexDirection: "row", alignItems: "center", borderRadius: 14, borderWidth: 1.5, paddingHorizontal: 14, height: 48, gap: 8, elevation: 2 },
   searchInput: { flex: 1, fontSize: 14, height: 48, paddingVertical: 0 },
   filterBtn: { width: 48, height: 48, borderRadius: 14, alignItems: "center", justifyContent: "center", elevation: 3 },
-  statsRow: { paddingHorizontal: 16, gap: 10, marginBottom: 20 },
-  statCard: { borderRadius: 16, padding: 14, alignItems: "center", borderWidth: 1, minWidth: 82, gap: 6, elevation: 2 },
-  statIconBox: { width: 36, height: 36, borderRadius: 10, alignItems: "center", justifyContent: "center" },
-  statValue: { fontSize: 18, fontWeight: "800" },
-  statLabel: { fontSize: 10, textAlign: "center" },
   sectionHeader: { paddingHorizontal: 16, marginBottom: 12 },
   sectionTitle: { fontSize: 17, fontWeight: "700" },
   sectionSub: { fontSize: 12, marginTop: 2 },
-  seeAll: { fontSize: 13, fontWeight: "600" },
   cardsGrid: { flexDirection: "row", flexWrap: "wrap", paddingHorizontal: 16, gap: 12, marginBottom: 24 },
   categoryCard: { width: CARD_WIDTH, borderRadius: 20, padding: 16, borderWidth: 1.5, overflow: "hidden", elevation: 3, minHeight: 190 },
   cardGlow: { position: "absolute", top: -10, right: -10, width: 80, height: 80, borderRadius: 40 },
@@ -413,37 +233,6 @@ const s = StyleSheet.create({
   cardArrow: { position: "absolute", bottom: 14, right: 14, width: 26, height: 26, borderRadius: 9, alignItems: "center", justifyContent: "center" },
   mapHint: { flexDirection: "row", alignItems: "center", alignSelf: "flex-start", paddingHorizontal: 7, paddingVertical: 3, borderRadius: 20, marginTop: 2 },
   mapHintText: { fontSize: 9, fontWeight: "700" },
-  bannerList: { paddingHorizontal: 16, gap: 12 },
-  bannerSlide: { width: BANNER_WIDTH, flexDirection: "row", alignItems: "center", borderRadius: 20, padding: 18, borderWidth: 1.5, gap: 14, elevation: 3 },
-  bannerIconBox: { width: 54, height: 54, borderRadius: 16, alignItems: "center", justifyContent: "center", flexShrink: 0 },
-  bannerContent: { flex: 1 },
-  bannerTag: { alignSelf: "flex-start", paddingHorizontal: 8, paddingVertical: 3, borderRadius: 20, marginBottom: 5 },
-  bannerTagText: { fontSize: 10, fontWeight: "700" },
-  bannerTitle: { fontSize: 15, fontWeight: "800", marginBottom: 2 },
-  bannerSubtitle: { fontSize: 11, marginBottom: 3 },
-  bannerDetail: { fontSize: 12, fontWeight: "600" },
-  bannerArrow: { width: 34, height: 34, borderRadius: 12, alignItems: "center", justifyContent: "center", flexShrink: 0 },
-  dotsRow: { flexDirection: "row", justifyContent: "center", alignItems: "center", gap: 6, marginTop: 12, marginBottom: 20 },
-  dot: { width: 6, height: 6, borderRadius: 3 },
-  dotActive: { width: 20, height: 6, borderRadius: 3 },
-  recentList: { paddingHorizontal: 16, gap: 8, marginBottom: 16 },
-  recentRow: { flexDirection: "row", alignItems: "center", borderRadius: 16, padding: 14, borderWidth: 1, gap: 12, elevation: 2 },
-  recentIconBox: { width: 42, height: 42, borderRadius: 12, alignItems: "center", justifyContent: "center" },
-  recentInfo: { flex: 1 },
-  recentTitleRow: { flexDirection: "row", alignItems: "center", gap: 6, marginBottom: 3 },
-  recentTitle: { fontSize: 14, fontWeight: "600", flex: 1 },
-  urgentTag: { borderRadius: 10, paddingHorizontal: 6, paddingVertical: 2 },
-  urgentTagText: { fontSize: 9, fontWeight: "700" },
-  recentCompany: { fontSize: 11 },
-  recentRight: { alignItems: "flex-end", gap: 4 },
-  recentPay: { fontSize: 12, fontWeight: "700" },
-  recentType: { fontSize: 10, fontWeight: "600" },
-  aiBanner: { marginHorizontal: 16, borderRadius: 18, padding: 16, flexDirection: "row", alignItems: "center", justifyContent: "space-between", borderWidth: 1 },
-  aiBannerLeft: { flex: 1 },
-  aiBannerTitle: { fontSize: 15, fontWeight: "700", marginBottom: 4 },
-  aiBannerSub: { fontSize: 12 },
-  aiBannerBtn: { borderRadius: 12, paddingHorizontal: 16, paddingVertical: 8 },
-  aiBannerBtnText: { color: "#FFFFFF", fontSize: 13, fontWeight: "700" },
   footer: { flexDirection: "row", alignItems: "center", justifyContent: "center", paddingVertical: 20 },
   footerText: { fontSize: 12 },
   footerBrand: { fontWeight: "700", fontSize: 12 },
