@@ -38,6 +38,13 @@ const CATEGORIES = [
   },
 ];
 
+const RECENT_JOBS = [
+  { id: "1", title: "Garden Cleaning",   company: "Kamal Silva",   pay: "LKR 2,500",   time: "2h ago", type: "Part Time", urgent: true  },
+  { id: "2", title: "Software Engineer", company: "ABC Solutions", pay: "LKR 120,000", time: "3h ago", type: "Full Time", urgent: false },
+  { id: "3", title: "Delivery Rider",    company: "QuickShip LK", pay: "LKR 45,000",  time: "5h ago", type: "Part Time", urgent: true  },
+  { id: "4", title: "UI/UX Designer",    company: "Tech Park LK", pay: "LKR 95,000",  time: "6h ago", type: "Full Time", urgent: false },
+];
+
 // ── CategoryCard
 const CategoryCard = ({ item, onPress, animValue, T }) => (
   <Animated.View style={{
@@ -74,6 +81,39 @@ const CategoryCard = ({ item, onPress, animValue, T }) => (
       )}
     </TouchableOpacity>
   </Animated.View>
+);
+
+// ── RecentJobRow
+const RecentJobRow = ({ item, onPress, T }) => (
+  <TouchableOpacity
+    style={[s.recentRow, { backgroundColor: T.surface, borderColor: T.border }]}
+    onPress={onPress} activeOpacity={0.8}
+  >
+    <View style={[s.recentIconBox, { backgroundColor: item.type === "Part Time" ? T.primaryBg : T.greenBg }]}>
+      <Ionicons
+        name={item.type === "Part Time" ? "time-outline" : "business-outline"}
+        size={18}
+        color={item.type === "Part Time" ? T.primary : T.green}
+      />
+    </View>
+    <View style={s.recentInfo}>
+      <View style={s.recentTitleRow}>
+        <Text style={[s.recentTitle, { color: T.text }]} numberOfLines={1}>{item.title}</Text>
+        {item.urgent && (
+          <View style={[s.urgentTag, { backgroundColor: T.orangeBg }]}>
+            <Text style={[s.urgentTagText, { color: T.orange }]}>Urgent</Text>
+          </View>
+        )}
+      </View>
+      <Text style={[s.recentCompany, { color: T.textSub }]}>{item.company}  ·  {item.time}</Text>
+    </View>
+    <View style={s.recentRight}>
+      <Text style={[s.recentPay, { color: T.green }]}>{item.pay}</Text>
+      <Text style={[s.recentType, { color: item.type === "Part Time" ? T.primary : T.green }]}>
+        {item.type}
+      </Text>
+    </View>
+  </TouchableOpacity>
 );
 
 // ─────────────────────────────────────────────────────────────
@@ -187,6 +227,32 @@ export default function HomeScreen() {
           ))}
         </View>
 
+        {/* ── RECENT JOBS ── */}
+        <View style={[s.sectionHeader, { marginTop: 8 }]}>
+          <Text style={[s.sectionTitle, { color: T.text }]}>Recent Jobs</Text>
+          <TouchableOpacity>
+            <Text style={[s.seeAll, { color: T.primary }]}>See All →</Text>
+          </TouchableOpacity>
+        </View>
+        <View style={s.recentList}>
+          {RECENT_JOBS.map((job) => (
+            <RecentJobRow key={job.id} item={job} T={T}
+              onPress={() => alert(`${job.title}\n${job.company}\nPay: ${job.pay}`)}
+            />
+          ))}
+        </View>
+
+        {/* ── AI BANNER ── */}
+        <View style={[s.aiBanner, { backgroundColor: T.primaryBg, borderColor: T.primary + "44" }]}>
+          <View style={s.aiBannerLeft}>
+            <Text style={[s.aiBannerTitle, { color: T.text }]}>🤖 AI Match Found!</Text>
+            <Text style={[s.aiBannerSub, { color: T.textSub }]}>3 jobs match your profile perfectly</Text>
+          </View>
+          <TouchableOpacity style={[s.aiBannerBtn, { backgroundColor: T.primary }]}>
+            <Text style={s.aiBannerBtnText}>View</Text>
+          </TouchableOpacity>
+        </View>
+
         {/* ── FOOTER ── */}
         <View style={s.footer}>
           <Ionicons name="shield-checkmark-outline" size={12} color={T.textLight} />
@@ -233,6 +299,25 @@ const s = StyleSheet.create({
   cardArrow: { position: "absolute", bottom: 14, right: 14, width: 26, height: 26, borderRadius: 9, alignItems: "center", justifyContent: "center" },
   mapHint: { flexDirection: "row", alignItems: "center", alignSelf: "flex-start", paddingHorizontal: 7, paddingVertical: 3, borderRadius: 20, marginTop: 2 },
   mapHintText: { fontSize: 9, fontWeight: "700" },
+  seeAll: { fontSize: 13, fontWeight: "600" },
+  recentList: { paddingHorizontal: 16, gap: 8, marginBottom: 16 },
+  recentRow: { flexDirection: "row", alignItems: "center", borderRadius: 16, padding: 14, borderWidth: 1, gap: 12, elevation: 2 },
+  recentIconBox: { width: 42, height: 42, borderRadius: 12, alignItems: "center", justifyContent: "center" },
+  recentInfo: { flex: 1 },
+  recentTitleRow: { flexDirection: "row", alignItems: "center", gap: 6, marginBottom: 3 },
+  recentTitle: { fontSize: 14, fontWeight: "600", flex: 1 },
+  urgentTag: { borderRadius: 10, paddingHorizontal: 6, paddingVertical: 2 },
+  urgentTagText: { fontSize: 9, fontWeight: "700" },
+  recentCompany: { fontSize: 11 },
+  recentRight: { alignItems: "flex-end", gap: 4 },
+  recentPay: { fontSize: 12, fontWeight: "700" },
+  recentType: { fontSize: 10, fontWeight: "600" },
+  aiBanner: { marginHorizontal: 16, borderRadius: 18, padding: 16, flexDirection: "row", alignItems: "center", justifyContent: "space-between", borderWidth: 1 },
+  aiBannerLeft: { flex: 1 },
+  aiBannerTitle: { fontSize: 15, fontWeight: "700", marginBottom: 4 },
+  aiBannerSub: { fontSize: 12 },
+  aiBannerBtn: { borderRadius: 12, paddingHorizontal: 16, paddingVertical: 8 },
+  aiBannerBtnText: { color: "#FFFFFF", fontSize: 13, fontWeight: "700" },
   footer: { flexDirection: "row", alignItems: "center", justifyContent: "center", paddingVertical: 20 },
   footerText: { fontSize: 12 },
   footerBrand: { fontWeight: "700", fontSize: 12 },
