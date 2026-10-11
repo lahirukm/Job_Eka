@@ -9,17 +9,29 @@
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#0A0F1E"
+      "backgroundColor": "#FFFFFF"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#0A0F1E"
+        "backgroundColor": "#FFFFFF"
       },
       "softwareKeyboardLayoutMode": "resize",
       "navigationBar": {
         "visible": "leanback"
-      }
+      },
+      "package": "com.lahirukm.jobeka",
+      "config": {
+        "googleMaps": {
+          "apiKey": ""
+        }
+      },
+      "permissions": [
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS"
+      ]
     },
     "ios": {
       "supportsTablet": true
@@ -31,8 +43,27 @@
         {
           "locationAlwaysAndWhenInUsePermission": "Allow JobEka to use your location to find nearby jobs."
         }
-      ]
+      ],
+      "expo-audio",
+      "expo-web-browser"
     ],
-    "scheme": "jobeka"
+    "scheme": "jobeka",
+    "androidNavigationBar": {
+      "backgroundColor": "#FFFFFF",
+      "barStyle": "dark-content"
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "94654759-1ae9-40d1-b41a-faf952fe3df2"
+      }
+    },
+    "owner": "kmlahiru",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/94654759-1ae9-40d1-b41a-faf952fe3df2"
+    }
   }
 }
